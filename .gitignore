@@ -102,3 +102,12 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+*.pkl
+*.idea
+*.model
+*.RData
+bridge1.csv
+bridge2.csv
+bridge3.csv
+Figure[1-7].png
