@@ -8,11 +8,15 @@ import evaluate
 
 import numpy as np
 import pickle
+from sklearn.decomposition import PCA
+
+import matplotlib.pyplot as plt
 
 
 def main():
     # Collect to compute evaluation metrics from all subsets of data.
     cusum_tp, cusum_fp, cusum_tn, cusum_fn = 0, 0, 0, 0
+    cusum_pc_1_tp, cusum_pc_1_fp, cusum_pc_1_tn, cusum_pc_1_fn = 0, 0, 0, 0
     vae_tp, vae_fp, vae_tn, vae_fn = 0, 0, 0, 0
 
     diff = 50  # For lowering frequency.
@@ -42,6 +46,33 @@ def main():
         print('* CUSUM mu and sigma:', mu, sigma)
         print('* Data sum mu and sigma:', np.mean(data_sum), np.std(data_sum))
         cusum_labels = cusum.cusum(data_sum, mu, sigma)
+        ### Plot - to illustrate problems with CUSUM on the 1st PC ###
+        seconds = np.arange(data.shape[0]) * 1. / 250
+        plt.plot(seconds, data_sum, color='black', linestyle=':')
+        plt.ticklabel_format(useOffset=False)
+        plt.xlabel('Second')
+        plt.ylabel('Microstrain')
+        plt.savefig('data_sum_dataset{}'.format(dataset_id), dpi=300)
+        plt.gcf().clear()
+        ###
+        print()
+
+        print('CUSUM on the 1st principal component')
+        mu_pc_1, sigma_pc_1 = 0, 4  # Set empirically, based on dataset 1.
+        pca = PCA(n_components=2)
+        data_pca = pca.fit_transform(data)
+        data_pc_1 = data_pca[:, 0]
+        ### Plot - to illustrate problems with CUSUM on the 1st PC ###
+        plt.plot(seconds, data_pc_1, color='black', linestyle=':')
+        plt.ticklabel_format(useOffset=False)
+        plt.xlabel('Second')
+        plt.ylabel('Microstrain')
+        plt.savefig('data_pc1_dataset{}'.format(dataset_id), dpi=300)
+        plt.gcf().clear()
+        ###
+        print('* CUSUM 1st PC mu and sigma:', mu_pc_1, sigma_pc_1)
+        print('* Data 1st PC mu and sigma:', np.mean(data_pc_1), np.std(data_pc_1))
+        cusum_pc_1_labels = cusum.cusum(data_pc_1, mu_pc_1, sigma_pc_1)
         print()
 
         print('Variational Auto-Encoder')
@@ -56,7 +87,7 @@ def main():
         # Plot an event, zoomed.
         if dataset_id == 1:
             with open('figure6.pkl', 'wb') as f:
-                pickle.dump((data_sum, cusum_labels, vae_labels, labels), f)
+                pickle.dump((data_sum, cusum_labels, cusum_pc_1_labels, vae_labels, labels), f)
 
         print()
         print('Evaluate VAE ({}):'.format(dataset_id))
@@ -72,6 +103,13 @@ def main():
         cusum_fp += fp
         cusum_tn += tn
         cusum_fn += fn
+        print()
+        print('Evaluale CUSUM 1st PC ({}):'.format(dataset_id))
+        tp, fp, tn, fn = evaluate.evaluate(cusum_pc_1_labels, labels)
+        cusum_pc_1_tp += tp
+        cusum_pc_1_fp += fp
+        cusum_pc_1_tn += tn
+        cusum_pc_1_fn += fn
 
     print()
     print('=====')
@@ -86,6 +124,13 @@ def main():
     print()
     print('CUSUM:')
     prec, rec, f1 = evaluate.metrics(cusum_tp, cusum_fp, cusum_tn, cusum_fn)
+    print('Precision', prec)
+    print('Recall', rec)
+    print('F1', f1)
+    print()
+    print('CUSUM 1st PC:')
+    prec, rec, f1 = evaluate.metrics(cusum_pc_1_tp, cusum_pc_1_fp,
+                                     cusum_pc_1_tn, cusum_pc_1_fn)
     print('Precision', prec)
     print('Recall', rec)
     print('F1', f1)

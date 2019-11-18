@@ -2,6 +2,7 @@
 
 import manual_labels
 import csv
+import matplotlib.figure as figure
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -207,28 +208,34 @@ def _figure_6():
     """Plot of labelled event, zoomed."""
 
     with open('figure6.pkl', 'rb') as f:
-        data_sum, cusum_labels, vae_labels, true_labels = pickle.load(f)
+        data_sum, cusum_labels, cusum_pc_1_labels, vae_labels, true_labels = pickle.load(f)
 
     l, r = 1570, 1630
 
     data_sum = data_sum[l:r]
     cusum_labels = cusum_labels[l:r]
+    cusum_pc_1_labels = cusum_pc_1_labels[l:r]
     vae_labels = vae_labels[l:r]
     true_labels = true_labels[l:r]
 
-    fig = plt.figure()
+    fa = figure.figaspect(0.75)
+    fig = plt.figure(figsize=fa)
     ax = fig.add_subplot(111)
-    ax1 = fig.add_subplot(311)
-    ax2 = fig.add_subplot(312)
-    ax3 = fig.add_subplot(313)
+    ax1 = fig.add_subplot(411)
+    ax2 = fig.add_subplot(412)
+    ax3 = fig.add_subplot(413)
+    ax4 = fig.add_subplot(414)
+    plt.subplots_adjust(hspace=0.4)
     plt.xlim(left=l / 5, right=r / 5)
     ax1.set_xlim(left=l / 5, right=r / 5)
     ax2.set_xlim(left=l / 5, right=r / 5)
     ax3.set_xlim(left=l / 5, right=r / 5)
+    ax4.set_xlim(left=l / 5, right=r / 5)
 
-    ax1.title.set_text('\nCUSUM')
-    ax2.title.set_text('\n\nVAE')
-    ax3.title.set_text('\n\nGround truth')
+    ax1.title.set_text('CUSUM - sum')
+    ax2.title.set_text('CUSUM - 1st PC')
+    ax3.title.set_text('VAE')
+    ax4.title.set_text('Ground truth')
 
     plt.ticklabel_format(useOffset=False)
     ax.spines['top'].set_color('none')
@@ -238,20 +245,24 @@ def _figure_6():
     ax.tick_params(labelcolor='w', top='off', bottom='off', left='off', right='off')
     ax1.set_xticklabels([])
     ax2.set_xticklabels([])
+    ax3.set_xticklabels([])
 
     all_idx = np.arange(data_sum.shape[0])
 
-    # CUSUM labels.
+    # CUSUM (sum) labels.
     ax1.scatter((all_idx[cusum_labels == 0] + l) / 5, data_sum[cusum_labels == 0], edgecolors='black', color='#aaaaaa', label='No event')
     ax1.scatter((all_idx[cusum_labels == 1] + l) / 5, data_sum[cusum_labels == 1], marker='x', c='black', label='Event')
+    # CUSUM (1st PC) labels.
+    ax2.scatter((all_idx[cusum_pc_1_labels == 0] + l) / 5, data_sum[cusum_pc_1_labels == 0], edgecolors='black', color='#aaaaaa', label='No event')
+    ax2.scatter((all_idx[cusum_pc_1_labels == 1] + l) / 5, data_sum[cusum_pc_1_labels == 1], marker='x', c='black', label='Event')
     # VAE labels.
-    ax2.scatter((all_idx[vae_labels == 0] + l) / 5, data_sum[vae_labels == 0], edgecolors='black', color='#aaaaaa', label='No event')
-    ax2.scatter((all_idx[vae_labels == 1] + l) / 5, data_sum[vae_labels == 1], marker='x', c='black', label='Event')
+    ax3.scatter((all_idx[vae_labels == 0] + l) / 5, data_sum[vae_labels == 0], edgecolors='black', color='#aaaaaa', label='No event')
+    ax3.scatter((all_idx[vae_labels == 1] + l) / 5, data_sum[vae_labels == 1], marker='x', c='black', label='Event')
     # Ground truth.
-    ax3.scatter((all_idx[true_labels == 0] + l) / 5, data_sum[true_labels == 0], edgecolors='black', color='#aaaaaa', label='No event')
-    ax3.scatter((all_idx[true_labels == 1] + l) / 5, data_sum[true_labels == 1], marker='x', c='black', label='Event')
+    ax4.scatter((all_idx[true_labels == 0] + l) / 5, data_sum[true_labels == 0], edgecolors='black', color='#aaaaaa', label='No event')
+    ax4.scatter((all_idx[true_labels == 1] + l) / 5, data_sum[true_labels == 1], marker='x', c='black', label='Event')
 
-    plt.legend(loc='lower right')
+    plt.legend(loc='lower right', framealpha=1., edgecolor='black')
 
     ax.set_xlabel('Second')
     ax.set_ylabel('Microstrain\n')
