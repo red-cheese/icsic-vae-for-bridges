@@ -269,7 +269,7 @@ def _figure_7():
         plt.rcParams['grid.linewidth'] = 0.5
         plt.rcParams['grid.linestyle'] = ':'
         plt.ticklabel_format(useOffset=False)
-        plt.scatter(z_mus[~labels, 0], z_mus[~labels, 1], c='#aaaaaa', label='No event')
+        plt.scatter(z_mus[~labels, 0], z_mus[~labels, 1], c='#aaaaaa', edgecolors='black', label='No event')
         plt.scatter(z_mus[labels, 0], z_mus[labels, 1], marker='x', c='black', label='Event')
         plt.xlabel('z[0]')
         plt.ylabel('z[1]')
@@ -419,8 +419,8 @@ def plot_all():
 
 
 def main():
-    prepare_data()
-    # plot_all()
+    # prepare_data()
+    plot_all()
 
 
 if __name__ == '__main__':
