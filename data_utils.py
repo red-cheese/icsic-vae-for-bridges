@@ -399,7 +399,16 @@ def get_data(dataset_id,
     return data, labels
 
 
-def main():
+def prepare_data():
+    _convert_to_microstrains(1)
+    _convert_to_microstrains(2)
+    _convert_to_microstrains(3)
+    _label(1)
+    _label(2)
+    _label(3)
+
+
+def plot_all():
     _figure_1()
     _figure_2()
     _figure_3()
@@ -407,6 +416,11 @@ def main():
     _figure_5()
     _figure_6()
     _figure_7()
+
+
+def main():
+    prepare_data()
+    # plot_all()
 
 
 if __name__ == '__main__':
