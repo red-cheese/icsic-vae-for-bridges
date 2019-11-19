@@ -1,10 +1,13 @@
+import numpy as np
 
 
 def metrics(tp, fp, tn, fn):
     precision = tp / (tp + fp) if tp else 0.
     recall = tp / (tp + fn) if tp else 0.
     f1 = (2 * precision * recall / (precision + recall)) if precision + recall else 0.
-    return precision, recall, f1
+    return (np.round(precision, decimals=3),
+            np.round(recall, decimals=3),
+            np.round(f1, decimals=3))
 
 
 def evaluate(predictions, truth):
