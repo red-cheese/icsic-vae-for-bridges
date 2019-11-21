@@ -208,7 +208,7 @@ def _figure_6():
     """Plot of labelled event, zoomed."""
 
     with open('figure6.pkl', 'rb') as f:
-        data_sum, cusum_labels, cusum_pc_1_labels, vae_labels, true_labels = pickle.load(f)
+        data_sum, cusum_labels, cusum_pc_1_labels, vae_labels, vae_rnn_labels, true_labels = pickle.load(f)
 
     l, r = 1570, 1630
 
@@ -216,26 +216,30 @@ def _figure_6():
     cusum_labels = cusum_labels[l:r]
     cusum_pc_1_labels = cusum_pc_1_labels[l:r]
     vae_labels = vae_labels[l:r]
+    vae_rnn_labels = vae_rnn_labels[l:r]
     true_labels = true_labels[l:r]
 
-    fa = figure.figaspect(0.75)
+    fa = figure.figaspect(0.7)
     fig = plt.figure(figsize=fa)
     ax = fig.add_subplot(111)
-    ax1 = fig.add_subplot(411)
-    ax2 = fig.add_subplot(412)
-    ax3 = fig.add_subplot(413)
-    ax4 = fig.add_subplot(414)
+    ax1 = fig.add_subplot(511)
+    ax2 = fig.add_subplot(512)
+    ax3 = fig.add_subplot(513)
+    ax4 = fig.add_subplot(514)
+    ax5 = fig.add_subplot(515)
     plt.subplots_adjust(hspace=0.4)
     plt.xlim(left=l / 5, right=r / 5)
     ax1.set_xlim(left=l / 5, right=r / 5)
     ax2.set_xlim(left=l / 5, right=r / 5)
     ax3.set_xlim(left=l / 5, right=r / 5)
     ax4.set_xlim(left=l / 5, right=r / 5)
+    ax5.set_xlim(left=l / 5, right=r / 5)
 
     ax1.title.set_text('CUSUM - sum')
     ax2.title.set_text('CUSUM - 1st PC')
-    ax3.title.set_text('VAE')
-    ax4.title.set_text('Ground truth')
+    ax3.title.set_text('VAE - Dense')
+    ax4.title.set_text('VAE - RNN')
+    ax5.title.set_text('Ground truth')
 
     plt.ticklabel_format(useOffset=False)
     ax.spines['top'].set_color('none')
@@ -246,6 +250,7 @@ def _figure_6():
     ax1.set_xticklabels([])
     ax2.set_xticklabels([])
     ax3.set_xticklabels([])
+    ax4.set_xticklabels([])
 
     all_idx = np.arange(data_sum.shape[0])
 
@@ -255,12 +260,17 @@ def _figure_6():
     # CUSUM (1st PC) labels.
     ax2.scatter((all_idx[cusum_pc_1_labels == 0] + l) / 5, data_sum[cusum_pc_1_labels == 0], edgecolors='black', color='#aaaaaa', label='No event')
     ax2.scatter((all_idx[cusum_pc_1_labels == 1] + l) / 5, data_sum[cusum_pc_1_labels == 1], marker='x', c='black', label='Event')
-    # VAE labels.
+    # VAE Dense labels.
     ax3.scatter((all_idx[vae_labels == 0] + l) / 5, data_sum[vae_labels == 0], edgecolors='black', color='#aaaaaa', label='No event')
     ax3.scatter((all_idx[vae_labels == 1] + l) / 5, data_sum[vae_labels == 1], marker='x', c='black', label='Event')
+    # VAE RNN labels.
+    ax4.scatter((all_idx[vae_rnn_labels == 0] + l) / 5, data_sum[vae_rnn_labels == 0],
+                edgecolors='black', color='#aaaaaa', label='No event')
+    ax4.scatter((all_idx[vae_rnn_labels == 1] + l) / 5, data_sum[vae_rnn_labels == 1],
+                marker='x', c='black', label='Event')
     # Ground truth.
-    ax4.scatter((all_idx[true_labels == 0] + l) / 5, data_sum[true_labels == 0], edgecolors='black', color='#aaaaaa', label='No event')
-    ax4.scatter((all_idx[true_labels == 1] + l) / 5, data_sum[true_labels == 1], marker='x', c='black', label='Event')
+    ax5.scatter((all_idx[true_labels == 0] + l) / 5, data_sum[true_labels == 0], edgecolors='black', color='#aaaaaa', label='No event')
+    ax5.scatter((all_idx[true_labels == 1] + l) / 5, data_sum[true_labels == 1], marker='x', c='black', label='Event')
 
     plt.legend(loc='lower right', framealpha=1., edgecolor='black')
 
@@ -272,7 +282,7 @@ def _figure_6():
 
 
 def _figure_7():
-    with open('figure7.pkl', 'rb') as f:
+    with open('figure7_rnn.pkl', 'rb') as f:
         z_mus, z_logsigmas, labels = pickle.load(f)
         labels = labels.astype(np.bool)
 
@@ -286,7 +296,7 @@ def _figure_7():
         plt.ylabel('z[1]')
         lg = plt.legend(loc='lower left')
         lg.draw_frame(True)
-        plt.savefig('Figure7.png', dpi=300)
+        plt.savefig('Figure7_rnn.png', dpi=300)
 
 
 # =============================================================================
@@ -420,11 +430,11 @@ def prepare_data():
 
 
 def plot_all():
-    _figure_1()
-    _figure_2()
-    _figure_3()
-    _figure_4()
-    _figure_5()
+    # _figure_1()
+    # _figure_2()
+    # _figure_3()
+    # _figure_4()
+    # _figure_5()
     _figure_6()
     _figure_7()
 

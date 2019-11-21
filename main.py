@@ -143,6 +143,7 @@ def main():
     cusum_tp, cusum_fp, cusum_tn, cusum_fn = 0, 0, 0, 0
     cusum_pc_1_tp, cusum_pc_1_fp, cusum_pc_1_tn, cusum_pc_1_fn = 0, 0, 0, 0
     vae_tp, vae_fp, vae_tn, vae_fn = 0, 0, 0, 0
+    vae_rnn_tp, vae_rnn_fp, vae_rnn_tn, vae_rnn_fn = 0, 0, 0, 0
 
     diff = 50  # For lowering frequency.
 
@@ -200,27 +201,43 @@ def main():
         cusum_pc_1_labels = cusum.cusum(data_pc_1, mu_pc_1, sigma_pc_1)
         print()
 
-        print('Variational Auto-Encoder')
         # Standardise data for easier training of DNNs.
         data_mu = np.mean(data, axis=0)
         data_sigma = np.std(data, axis=0)
         vae_data = (data - data_mu) / data_sigma
-        variational = vae.VAEClassifier(input_dim=data_utils.IN_DIM, suffix='bridge{}_diff={}'.format(dataset_id, diff))
-        variational.fit(vae_data, dump_latent=(dataset_id == 1), dump_latent_true_labels=labels)
+
+        print('Variational Auto-Encoder (Dense)')
+        variational = vae.VAEClassifier(vae.DenseVAE, input_dim=data_utils.IN_DIM, suffix='bridge{}_diff={}'.format(dataset_id, diff),
+                                        recproba_threshold=-150)
+        variational.fit(vae_data, shuffle=True, dump_latent=(dataset_id == 1), dump_latent_true_labels=labels)
         vae_labels = variational.predict(vae_data)
+        print()
+
+        print('Variational Auto-Encoder (RNN)')
+        variational_rnn = vae.VAEClassifier(vae.RNNVAE, input_dim=data_utils.IN_DIM, suffix='bridge{}_diff={}'.format(dataset_id, diff),
+                                            recproba_threshold=-200)
+        variational_rnn.fit(vae_data, shuffle=False, dump_latent=(dataset_id == 1), dump_latent_true_labels=labels)
+        vae_rnn_labels = variational_rnn.predict(vae_data)
 
         # Plot an event, zoomed.
         if dataset_id == 1:
             with open('figure6.pkl', 'wb') as f:
-                pickle.dump((data_sum, cusum_labels, cusum_pc_1_labels, vae_labels, labels), f)
+                pickle.dump((data_sum, cusum_labels, cusum_pc_1_labels, vae_labels, vae_rnn_labels, labels), f)
 
         print()
-        print('Evaluate VAE ({}):'.format(dataset_id))
+        print('Evaluate VAE Dense ({}):'.format(dataset_id))
         tp, fp, tn, fn = evaluate.evaluate(vae_labels, labels)
         vae_tp += tp
         vae_fp += fp
         vae_tn += tn
         vae_fn += fn
+        print()
+        print('Evaluate VAE RNN ({}):'.format(dataset_id))
+        tp, fp, tn, fn = evaluate.evaluate(vae_rnn_labels, labels)
+        vae_rnn_tp += tp
+        vae_rnn_fp += fp
+        vae_rnn_tn += tn
+        vae_rnn_fn += fn
         print()
         print('Evaluate CUSUM ({}):'.format(dataset_id))
         tp, fp, tn, fn = evaluate.evaluate(cusum_labels, labels)
@@ -241,8 +258,14 @@ def main():
     print()
     print('Final evaluation:')
     print()
-    print('VAE:')
+    print('VAE Dense:')
     prec, rec, f1 = evaluate.metrics(vae_tp, vae_fp, vae_tn, vae_fn)
+    print('Precision', prec)
+    print('Recall', rec)
+    print('F1', f1)
+    print()
+    print('VAE RNN:')
+    prec, rec, f1 = evaluate.metrics(vae_rnn_tp, vae_rnn_fp, vae_rnn_tn, vae_rnn_fn)
     print('Precision', prec)
     print('Recall', rec)
     print('F1', f1)
