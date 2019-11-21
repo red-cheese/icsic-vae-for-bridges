@@ -432,11 +432,11 @@ def prepare_data():
 
 
 def plot_all():
-    # _figure_1()
-    # _figure_2()
-    # _figure_3()
-    # _figure_4()
-    # _figure_5()
+    _figure_1()
+    _figure_2()
+    _figure_3()
+    _figure_4()
+    _figure_5()
     _figure_6()
     _figure_7()
 

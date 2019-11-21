@@ -71,16 +71,16 @@ def _test_transferability(model_id, test_data_ids):
         vae_data = (data - data_mu) / data_sigma
 
         print('Variational Auto-Encoder (Dense)')
-        variational = vae.VAEClassifier(vae.DenseVAE, input_dim=data_utils.IN_DIM, suffix='bridge{}_diff={}'.format(dataset_id, diff),
-                                        recproba_threshold=-150)
-        variational.fit(vae_data, shuffle=True, dump_latent=(dataset_id == 1), dump_latent_true_labels=labels)
+        variational = vae.VAEClassifier(vae.DenseVAE, input_dim=data_utils.IN_DIM, suffix='bridge{}_diff={}'.format(model_id, diff),
+                                        recproba_threshold=-130)
+        variational.fit(vae_data, shuffle=True)
         vae_labels = variational.predict(vae_data)
         print()
 
         print('Variational Auto-Encoder (RNN)')
-        variational_rnn = vae.VAEClassifier(vae.RNNVAE, input_dim=data_utils.IN_DIM, suffix='bridge{}_diff={}'.format(dataset_id, diff),
+        variational_rnn = vae.VAEClassifier(vae.RNNVAE, input_dim=data_utils.IN_DIM, suffix='bridge{}_diff={}'.format(model_id, diff),
                                             recproba_threshold=-200)
-        variational_rnn.fit(vae_data, shuffle=False, dump_latent=(dataset_id == 1), dump_latent_true_labels=labels)
+        variational_rnn.fit(vae_data, shuffle=False)
         vae_rnn_labels = variational_rnn.predict(vae_data)
 
         print()
@@ -153,9 +153,9 @@ def main_transfer():
     Model 3 is tested on datasets 1 and 2.
     """
 
-    _test_transferability(model_id=1, test_data_ids=(1, 2, 3))
-    _test_transferability(model_id=2, test_data_ids=(1, 2, 3))
-    _test_transferability(model_id=3, test_data_ids=(1, 2, 3))
+    _test_transferability(model_id=1, test_data_ids=(2, 3))
+    _test_transferability(model_id=2, test_data_ids=(1, 3))
+    _test_transferability(model_id=3, test_data_ids=(1, 2))
 
 
 def main():
@@ -228,7 +228,7 @@ def main():
 
         print('Variational Auto-Encoder (Dense)')
         variational = vae.VAEClassifier(vae.DenseVAE, input_dim=data_utils.IN_DIM, suffix='bridge{}_diff={}'.format(dataset_id, diff),
-                                        recproba_threshold=-150)
+                                        recproba_threshold=-130)
         variational.fit(vae_data, shuffle=True, dump_latent=(dataset_id == 1), dump_latent_true_labels=labels)
         vae_labels = variational.predict(vae_data)
         print()
@@ -306,5 +306,5 @@ def main():
 
 
 if __name__ == '__main__':
-    # main()
-    main_transfer()
+    main()
+    # main_transfer()
