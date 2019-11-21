@@ -227,7 +227,7 @@ def _figure_6():
     ax3 = fig.add_subplot(513)
     ax4 = fig.add_subplot(514)
     ax5 = fig.add_subplot(515)
-    plt.subplots_adjust(hspace=0.4)
+    plt.subplots_adjust(hspace=0.43)
     plt.xlim(left=l / 5, right=r / 5)
     ax1.set_xlim(left=l / 5, right=r / 5)
     ax2.set_xlim(left=l / 5, right=r / 5)
@@ -282,21 +282,23 @@ def _figure_6():
 
 
 def _figure_7():
-    with open('figure7_rnn.pkl', 'rb') as f:
-        z_mus, z_logsigmas, labels = pickle.load(f)
-        labels = labels.astype(np.bool)
+    for name in ('rnn', 'dense'):
+        with open('figure7_{}.pkl'.format(name), 'rb') as f:
+            z_mus, z_logsigmas, labels = pickle.load(f)
+            labels = labels.astype(np.bool)
 
-        plt.rcParams['grid.color'] = 'black'
-        plt.rcParams['grid.linewidth'] = 0.5
-        plt.rcParams['grid.linestyle'] = ':'
-        plt.ticklabel_format(useOffset=False)
-        plt.scatter(z_mus[~labels, 0], z_mus[~labels, 1], c='#aaaaaa', edgecolors='black', label='No event')
-        plt.scatter(z_mus[labels, 0], z_mus[labels, 1], marker='x', c='black', label='Event')
-        plt.xlabel('z[0]')
-        plt.ylabel('z[1]')
-        lg = plt.legend(loc='lower left')
-        lg.draw_frame(True)
-        plt.savefig('Figure7_rnn.png', dpi=300)
+            plt.rcParams['grid.color'] = 'black'
+            plt.rcParams['grid.linewidth'] = 0.5
+            plt.rcParams['grid.linestyle'] = ':'
+            plt.ticklabel_format(useOffset=False)
+            plt.scatter(z_mus[~labels, 0], z_mus[~labels, 1], c='#aaaaaa', edgecolors='black', label='No event')
+            plt.scatter(z_mus[labels, 0], z_mus[labels, 1], marker='x', c='black', label='Event')
+            plt.xlabel('z[0]')
+            plt.ylabel('z[1]')
+            lg = plt.legend(loc='lower left', framealpha=1., edgecolor='black')
+            lg.draw_frame(True)
+            plt.savefig('Figure7_{}.png'.format(name), dpi=300)
+            plt.gcf().clear()
 
 
 # =============================================================================

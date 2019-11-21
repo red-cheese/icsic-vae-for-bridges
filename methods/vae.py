@@ -24,6 +24,7 @@ class _VAEBase:
     Variational Auto-Encoder (Kingma and Welling, 2013).
     """
 
+    _NAME = None
     _MODEL_NAME = None
     _MODEL_FILE_PATTERN = './models/{}.model'
 
@@ -67,6 +68,7 @@ class DenseVAE(_VAEBase):
     Variational Auto-Encoder with Dense networks as its encoder and decoder.
     """
 
+    _NAME = 'dense'
     _MODEL_NAME = 'vae_epochs{e}_batch{b}_ldim{ld}'.format(e=EPOCHS, b=BATCH_SIZE, ld=LATENT_DIM)
 
     def _build_model(self):
@@ -121,6 +123,7 @@ class RNNVAE(_VAEBase):
     Variational Auto-Encoder with RNNs as its encoder and decoder.
     """
 
+    _NAME = 'rnn'
     _MODEL_NAME = 'rnnvae_epochs{e}_batch{b}_ldim{ld}'.format(e=EPOCHS, b=BATCH_SIZE, ld=LATENT_DIM)
 
     def _build_model(self):
@@ -216,7 +219,7 @@ class VAEClassifier:
             assert dump_latent_true_labels is not None  # Ground truth (manual) labels.
             z_mus, z_logsigmas = self._vae._encoder.predict(train_data, batch_size=BATCH_SIZE)
             print('Dumping VAE latent space')
-            with open('figure7_{}.pkl'.format(self._vae_class), 'wb') as f:
+            with open('figure7_{}.pkl'.format(self._vae._NAME), 'wb') as f:
                 pickle.dump((z_mus, z_logsigmas, dump_latent_true_labels), f)
 
     def predict(self, test_data):
