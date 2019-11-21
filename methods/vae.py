@@ -134,8 +134,8 @@ class RNNVAE(_VAEBase):
         x = Input(shape=(self._input_dim,))
         x_reshaped = Reshape((timesteps, features))(x)
         encoder_h = LSTM(40, return_sequences=True)(x_reshaped)
-        z_mean = LSTM(LATENT_DIM)(encoder_h)
-        z_log_sigma = LSTM(LATENT_DIM)(encoder_h)
+        z_mean = LSTM(LATENT_DIM, activation=None)(encoder_h)
+        z_log_sigma = LSTM(LATENT_DIM, activation=None)(encoder_h)
 
         def sampling(args):
             z_mean, z_log_sigma = args
@@ -151,8 +151,8 @@ class RNNVAE(_VAEBase):
         decoder_h = LSTM(40, return_sequences=True)
         # Don't return sequences as the original input did not have the
         # timesteps axis.
-        decoder_mean = LSTM(features)
-        decoder_std = LSTM(features)
+        decoder_mean = LSTM(features, activation=None)
+        decoder_std = LSTM(features, activation=None)
 
         h_decoded = RepeatVector(timesteps)(z)
         h_decoded = decoder_h(h_decoded)
