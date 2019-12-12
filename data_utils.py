@@ -282,8 +282,60 @@ def _figure_6():
 
 
 def _figure_7():
+    fa = figure.figaspect(0.7)
+    fig = plt.figure(figsize=fa)
+    # fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax1 = fig.add_subplot(311)
+    ax2 = fig.add_subplot(312)
+    ax3 = fig.add_subplot(313)
+    plt.subplots_adjust(hspace=0.43)
+
+    ax1.title.set_text('Dataset 1')
+    ax2.title.set_text('Dataset 2')
+    ax3.title.set_text('Dataset 3')
+
+    pkl_file = _pkl_file_path(1)
+    with open(pkl_file, 'rb') as f:
+        data1 = pickle.load(f)
+        cdata1 = np.sum(data1, axis=1)
+    pkl_file = _pkl_file_path(2)
+    with open(pkl_file, 'rb') as f:
+        data2 = pickle.load(f)
+        cdata2 = np.sum(data2, axis=1)
+    pkl_file = _pkl_file_path(3)
+    with open(pkl_file, 'rb') as f:
+        data3 = pickle.load(f)
+        cdata3 = np.sum(data3, axis=1)
+
+    min_len = min(cdata1.shape[0], cdata2.shape[0], cdata3.shape[0])
+    cdata1, cdata2, cdata3 = cdata1[:min_len], cdata2[:min_len], cdata3[:min_len]
+
+    seconds = np.arange(cdata1.shape[0]) * 1. / 250
+
+    ax1.set_xticklabels([])
+    ax2.set_xticklabels([])
+
+    plt.ticklabel_format(useOffset=False)
+    ax.spines['top'].set_color('none')
+    ax.spines['bottom'].set_color('none')
+    ax.spines['left'].set_color('none')
+    ax.spines['right'].set_color('none')
+    ax.tick_params(labelcolor='w', top='off', bottom='off', left='off', right='off')
+
+    ax1.plot(seconds, cdata1, color='black', linestyle=':')
+    ax2.plot(seconds, cdata2, color='black', linestyle=':')
+    ax3.plot(seconds, cdata3, color='black', linestyle=':')
+
+    ax.set_xlabel('Second')
+    ax.set_ylabel('Microstrain\n')
+    plt.savefig('Figure7.png', dpi=300)
+    plt.gcf().clear()
+
+
+def _figure_8():
     for name in ('rnn', 'dense'):
-        with open('figure7_{}.pkl'.format(name), 'rb') as f:
+        with open('figure8_{}.pkl'.format(name), 'rb') as f:
             z_mus, z_logsigmas, labels = pickle.load(f)
             labels = labels.astype(np.bool)
 
@@ -297,7 +349,7 @@ def _figure_7():
             plt.ylabel('z[1]')
             lg = plt.legend(loc='lower left', framealpha=1., edgecolor='black')
             lg.draw_frame(True)
-            plt.savefig('Figure7_{}.png'.format(name), dpi=300)
+            plt.savefig('Figure8_{}.png'.format(name), dpi=300)
             plt.gcf().clear()
 
 
@@ -439,6 +491,7 @@ def plot_all():
     _figure_5()
     _figure_6()
     _figure_7()
+    _figure_8()
 
 
 def main():
