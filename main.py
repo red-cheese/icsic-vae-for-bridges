@@ -9,6 +9,7 @@ import evaluate
 import numpy as np
 import pickle
 from sklearn.decomposition import PCA
+from sklearn.svm import LinearSVC
 
 import matplotlib.pyplot as plt
 
@@ -20,6 +21,7 @@ def _test_transferability(model_id, test_data_ids):
     cusum_pc_1_tp, cusum_pc_1_fp, cusum_pc_1_tn, cusum_pc_1_fn = 0, 0, 0, 0
     vae_tp, vae_fp, vae_tn, vae_fn = 0, 0, 0, 0
     vae_rnn_tp, vae_rnn_fp, vae_rnn_tn, vae_rnn_fn = 0, 0, 0, 0
+    svc_tp, svc_fp, svc_tn, svc_fn = 0, 0, 0, 0
 
     diff = 50  # For lowering frequency.
 
@@ -70,6 +72,12 @@ def _test_transferability(model_id, test_data_ids):
         data_sigma = np.std(data, axis=0)
         vae_data = (data - data_mu) / data_sigma
 
+        print('SVM')
+        svc = LinearSVC(random_state=0, tol=1e-5, class_weight='balanced')
+        svc.fit(vae_data, labels)
+        svc_labels = svc.predict(vae_data)
+        print()
+
         print('Variational Auto-Encoder (Dense)')
         variational = vae.VAEClassifier(vae.DenseVAE, input_dim=data_utils.IN_DIM, suffix='bridge{}_diff={}'.format(model_id, diff),
                                         recproba_threshold=-130)
@@ -111,6 +119,13 @@ def _test_transferability(model_id, test_data_ids):
         cusum_pc_1_fp += fp
         cusum_pc_1_tn += tn
         cusum_pc_1_fn += fn
+        print()
+        print('Evaluate SVM ({}):'.format(dataset_id))
+        tp, fp, tn, fn = evaluate.evaluate(svc_labels, labels)
+        svc_tp += tp
+        svc_fp += fp
+        svc_tn += tn
+        svc_fn += fn
 
     print()
     print('=====')
@@ -142,6 +157,13 @@ def _test_transferability(model_id, test_data_ids):
     print('Recall', rec)
     print('F1', f1)
     print()
+    print('SVM:')
+    prec, rec, f1 = evaluate.metrics(svc_tp, svc_fp,
+                                     svc_tn, svc_fn)
+    print('Precision', prec)
+    print('Recall', rec)
+    print('F1', f1)
+    print()
 
 
 def main_transfer():
@@ -164,6 +186,7 @@ def main():
     cusum_pc_1_tp, cusum_pc_1_fp, cusum_pc_1_tn, cusum_pc_1_fn = 0, 0, 0, 0
     vae_tp, vae_fp, vae_tn, vae_fn = 0, 0, 0, 0
     vae_rnn_tp, vae_rnn_fp, vae_rnn_tn, vae_rnn_fn = 0, 0, 0, 0
+    svc_tp, svc_fp, svc_tn, svc_fn = 0, 0, 0, 0
 
     diff = 50  # For lowering frequency.
 
@@ -226,6 +249,12 @@ def main():
         data_sigma = np.std(data, axis=0)
         vae_data = (data - data_mu) / data_sigma
 
+        print('SVM')
+        svc = LinearSVC(random_state=0, tol=1e-5, class_weight='balanced')
+        svc.fit(vae_data, labels)
+        svc_labels = svc.predict(vae_data)
+        print()
+
         print('Variational Auto-Encoder (Dense)')
         variational = vae.VAEClassifier(vae.DenseVAE, input_dim=data_utils.IN_DIM, suffix='bridge{}_diff={}'.format(dataset_id, diff),
                                         recproba_threshold=-130)
@@ -272,6 +301,13 @@ def main():
         cusum_pc_1_fp += fp
         cusum_pc_1_tn += tn
         cusum_pc_1_fn += fn
+        print()
+        print('Evaluate SVM ({}):'.format(dataset_id))
+        tp, fp, tn, fn = evaluate.evaluate(svc_labels, labels)
+        svc_tp += tp
+        svc_fp += fp
+        svc_tn += tn
+        svc_fn += fn
 
     print()
     print('=====')
@@ -303,8 +339,15 @@ def main():
     print('Recall', rec)
     print('F1', f1)
     print()
+    print('SVM:')
+    prec, rec, f1 = evaluate.metrics(svc_tp, svc_fp,
+                                     svc_tn, svc_fn)
+    print('Precision', prec)
+    print('Recall', rec)
+    print('F1', f1)
+    print()
 
 
 if __name__ == '__main__':
     main()
-    # main_transfer()
+    main_transfer()
