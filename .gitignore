@@ -106,6 +106,8 @@ venv.bak/
 *.pkl
 *.idea
 *.model
+*.model.*
+checkpoint
 *.RData
 bridge1.csv
 bridge2.csv

@@ -48,7 +48,7 @@ class _VAEBase:
         else:
             print('Fitting')
             self._vae.fit(train_data,
-                          nb_epoch=EPOCHS,
+                          epochs=EPOCHS,
                           batch_size=BATCH_SIZE,
                           shuffle=shuffle,
                           verbose=1)
@@ -127,7 +127,7 @@ class RNNVAE(_VAEBase):
     _MODEL_NAME = 'rnnvae_epochs{e}_batch{b}_ldim{ld}'.format(e=EPOCHS, b=BATCH_SIZE, ld=LATENT_DIM)
 
     def _build_model(self):
-        timesteps = 1
+        timesteps = 10
         features = self._input_dim // timesteps
 
         # Encoding.
@@ -151,10 +151,10 @@ class RNNVAE(_VAEBase):
         decoder_h = LSTM(40, return_sequences=True)
         # Don't return sequences as the original input did not have the
         # timesteps axis.
-        decoder_mean = LSTM(features, activation=None)
-        decoder_std = LSTM(features, activation=None)
+        decoder_mean = LSTM(self._input_dim, activation=None)
+        decoder_std = LSTM(self._input_dim, activation=None)
 
-        h_decoded = RepeatVector(timesteps)(z)
+        h_decoded = RepeatVector(1)(z)
         h_decoded = decoder_h(h_decoded)
 
         x_decoded_mean = decoder_mean(h_decoded)
